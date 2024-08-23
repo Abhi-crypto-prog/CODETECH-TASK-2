@@ -1,0 +1,113 @@
+from datetime import datetime, timedelta
+
+
+class Item:
+    def __init__(self, title, author, category, item_id):
+        self.title = title
+        self.author = author
+        self.category = category
+        self.item_id = item_id
+        self.is_checked_out = False
+        self.due_date = None
+
+    def __str__(self):
+        return f"{self.title} by {self.author} (Category: {self.category}, ID: {self.item_id})"
+
+
+class Book(Item):
+    def __init__(self, title, author, category, item_id, isbn):
+        super().__init__(title, author, category, item_id)
+        self.isbn = isbn
+
+
+class Magazine(Item):
+    def __init__(self, title, author, category, item_id, issue_number):
+        super().__init__(title, author, category, item_id)
+        self.issue_number = issue_number
+
+
+class DVD(Item):
+    def __init__(self, title, director, category, item_id, duration):
+        super().__init__(title, director, category, item_id)
+        self.duration = duration
+
+
+class Member:
+    def __init__(self, name, member_id):
+        self.name = name
+        self.member_id = member_id
+        self.checked_out_items = []
+
+    def check_out(self, item):
+        self.checked_out_items.append(item)
+
+    def return_item(self, item):
+        self.checked_out_items.remove(item)
+
+
+class Library:
+    def __init__(self):
+        self.items = []
+        self.members = []
+
+    def add_item(self, item):
+        self.items.append(item)
+
+    def remove_item(self, item_id):
+        self.items = [item for item in self.items if item.item_id != item_id]
+
+    def check_out_item(self, item_id, member_id):
+        item = next((item for item in self.items if item.item_id == item_id), None)
+        member = next((member for member in self.members if member.member_id == member_id), None)
+
+        if item and member and not item.is_checked_out:
+            item.is_checked_out = True
+            item.due_date = datetime.now() + timedelta(days=14)  # 2 weeks checkout period
+            member.check_out(item)
+            return f"{item.title} checked out by {member.name}."
+        return "Item not available or member not found."
+
+    def return_item(self, item_id):
+        item = next((item for item in self.items if item.item_id == item_id), None)
+        if item and item.is_checked_out:
+            item.is_checked_out = False
+            return f"{item.title} returned."
+        return "Item not found or not checked out."
+
+    def calculate_fine(self, item_id, return_date):
+        item = next((item for item in self.items if item.item_id == item_id), None)
+        if item and item.is_checked_out:
+            overdue_days = (return_date - item.due_date).days
+            if overdue_days > 0:
+                return overdue_days * 1  # Assume $1 per day overdue fine
+        return 0
+
+    def search_by_title(self, title):
+        return [item for item in self.items if title.lower() in item.title.lower()]
+
+    def search_by_author(self, author):
+        return [item for item in self.items if author.lower() in item.author.lower()]
+
+    def search_by_category(self, category):
+        return [item for item in self.items if category.lower() in item.category.lower()]
+
+
+library = Library()
+
+book1 = Book("The Great Gatsby", "F. Scott Fitzgerald", "Fiction", 1, "1234567890")
+magazine1 = Magazine("National Geographic", "Various", "Education", 2, "2023-08")
+dvd1 = DVD("Inception", "Christopher Nolan", "Sci-Fi", 3, "148 min")
+
+library.add_item(book1)
+library.add_item(magazine1)
+library.add_item(dvd1)
+
+member1 = Member("ABHISHEK CHATTERJEE", 101)
+library.members.append(member1)
+
+print(library.check_out_item(1, 101))  # Checkout "The Great Gatsby" by ABHISHEK CHATTERJEE
+
+overdue_fine = library.calculate_fine(1, datetime.now() + timedelta(days=16))  # Assume the book is returned 2 days late
+print(f"Overdue fine: ${overdue_fine}")
+
+print(library.return_item(1))  # Return "The Great Gatsby"
