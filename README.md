@@ -42,6 +42,11 @@ The system is designed to be simple and intuitive, allowing library staff to man
 
 This overview and description provide a comprehensive understanding of the system, its purpose, and the technologies used in its implementation.
 
+# OUTPUT
+
+![Screenshot 2024-08-30 024208](https://github.com/user-attachments/assets/4d5a6f21-b1bb-407a-b020-6e51d5d3b2a8)
+
+
 
 
 
